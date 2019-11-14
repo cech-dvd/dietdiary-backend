@@ -1,84 +1,35 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var nutritionDefinition =
-    "{\n" +
-    "   required: true,\n" +
-    "   kcal: {type: Number, required: false, default: 0},\n" +
-    "   protein: {type: Number, required: false, default: 0},\n" +
-    "   carbs: {type: Number, required: false, default: 0},\n" +
-    "   fat: {type: Number, required: false, default: 0},\n" +
-    "   fibre: {type: Number, required: false, default: 0},\n" +
-    "}";
+//Not sure about required
+
+var mealSchema = new Schema({
+    name: {type: String},
+    contents: {type: String},
+    kcal: {type: Number, default: 0},
+    protein: {type: Number, default: 0},
+    carbs: {type: Number, default: 0},
+    fat: {type: Number, default: 0},
+    fibre: {type: Number, default: 0}
+});
 
 var diaryEntrySchema = new Schema({
     date: {
-        type: Number,
+        type: Date,
         required: true,
-        index: true,
+        index: true
     },
-    meals: {
-        breakfast: {
-            required: true,
-            kcal: {type: Number, required: false, default: 0},
-            protein: {type: Number, required: false, default: 0},
-            carbs: {type: Number, required: false, default: 0},
-            fat: {type: Number, required: false, default: 0},
-            fibre: {type: Number, required: false, default: 0},
-        },
-        morning_snack: {
-            required: true,
-            kcal: {type: Number, required: false, default: 0},
-            protein: {type: Number, required: false, default: 0},
-            carbs: {type: Number, required: false, default: 0},
-            fat: {type: Number, required: false, default: 0},
-            fibre: {type: Number, required: false, default: 0},
-        },
-        lunch: {
-            required: true,
-            kcal: {type: Number, required: false, default: 0},
-            protein: {type: Number, required: false, default: 0},
-            carbs: {type: Number, required: false, default: 0},
-            fat: {type: Number, required: false, default: 0},
-            fibre: {type: Number, required: false, default: 0},
-        },
-        afternoon_snack: {
-            required: true,
-            kcal: {type: Number, required: false, default: 0},
-            protein: {type: Number, required: false, default: 0},
-            carbs: {type: Number, required: false, default: 0},
-            fat: {type: Number, required: false, default: 0},
-            fibre: {type: Number, required: false, default: 0},
-        },
-        dinner: {
-            required: true,
-            kcal: {type: Number, required: false, default: 0},
-            protein: {type: Number, required: false, default: 0},
-            carbs: {type: Number, required: false, default: 0},
-            fat: {type: Number, required: false, default: 0},
-            fibre: {type: Number, required: false, default: 0},
-        },
-        other: {
-            required: true,
-            kcal: {type: Number, required: false, default: 0},
-            protein: {type: Number, required: false, default: 0},
-            carbs: {type: Number, required: false, default: 0},
-            fat: {type: Number, required: false, default: 0},
-            fibre: {type: Number, required: false, default: 0},
-        },
-    },
+    meals: [mealSchema],
     nutritionSummary: {
         kcal: Number,
         protein: Number,
         carbs: Number,
         fat: Number,
-        fibre: Number,
-        required: true
+        fibre: Number
     },
     activities: {
-        kcal: {type: Number, required: true, default: 0},
-        description: {type: String, required: true, default: "No activities"},
-        required: false,
+        kcal: {type: Number, required: false, default: 0},
+        description: {type: String, required: false, default: "No activities"}
     },
     author: {
         type: Schema.ObjectId,
