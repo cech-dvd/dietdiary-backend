@@ -18,27 +18,19 @@ router.post('/create', passport.authenticate('jwt', { session: false }), (req, r
     newEntry.nutritionSummary = {kcal: 9, protein: 3, fibre: 2, fat: 1, carbs: 4};
     newEntry.author = req.user._id;
     newEntry.activities = req.body.activities;
-    newEntry.nutritionSummary = calculateSummary(meals);
+    newEntry.nutritionSummary = calculateSummary(meals, req.body.activities);
 
-    /*
-    if(req.body.desc){
-        newFood.desc = req.body.desc;
-    }
-    if (req.body.ingredients){
-        newFood.ingredients = req.body.ingredients;
-    }
-    */
     res.json(newEntry);
-    // newFood.save(function (err, food) {
-    //     if (err) {
-    //         res.send(err);
-    //     } else {
-    //         res.send(food)
-    //     }
-    // });
+    /*newEntry.save(function (err, entry) {
+        if (err) {
+             res.send(err);
+        } else {
+             res.send(entry);
+         }
+    });*/
 });
 
-calculateSummary = (meals) =>{
+calculateSummary = (meals, activites) =>{
     let nutritionSummary = {kcal: 0, protein: 0, fibre: 0, fat: 0, carbs: 0};
 
     let entries = Object.entries(nutritionSummary);
@@ -48,6 +40,8 @@ calculateSummary = (meals) =>{
                 entries[k][1] += mealEntry[k][1];
         }
     }
+
+    entries[0][1] -= activites.kcal;
 
     return Object.fromEntries(entries);
 };
