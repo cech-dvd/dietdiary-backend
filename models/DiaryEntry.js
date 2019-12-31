@@ -4,13 +4,13 @@ var Schema = mongoose.Schema;
 //Not sure about required
 
 var mealSchema = new Schema({
-    name: {type: String},
-    contents: {type: String},
     kcal: {type: Number, default: 0},
     protein: {type: Number, default: 0},
     carbs: {type: Number, default: 0},
     fat: {type: Number, default: 0},
-    fibre: {type: Number, default: 0}
+    fibre: {type: Number, default: 0},
+    name: {type: String},
+    contents: {type: Array},
 });
 
 var diaryEntrySchema = new Schema({
