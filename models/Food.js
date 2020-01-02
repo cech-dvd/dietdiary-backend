@@ -1,7 +1,7 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+let mongoose = require('mongoose');
+let Schema = mongoose.Schema;
 
-var foodSchema = new Schema({
+let foodSchema = new Schema({
     name: {
         type: String,
         required: true

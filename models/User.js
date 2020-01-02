@@ -1,12 +1,12 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+let mongoose = require('mongoose');
+let Schema = mongoose.Schema;
 
 //Password hashing taken from https://stackoverflow.com/questions/14588032/mongoose-password-hashing
 bcrypt = require('bcrypt'),
     SALT_WORK_FACTOR = 10;
 
 
-var userSchema = new Schema({
+let userSchema = new Schema({
     email: {
         type: String,
         required: true,
@@ -25,7 +25,7 @@ var userSchema = new Schema({
 
 //Hashes the password after every create or update and before it goes into the DB
 userSchema.pre('save', function(next) {
-    var user = this;
+    let user = this;
 
     // only hash the password if it has been modified (or is new)
     if (!user.isModified('password')) return next();

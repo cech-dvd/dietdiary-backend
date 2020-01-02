@@ -1,14 +1,14 @@
-var User = require('../models/User');
-var express = require('express');
-var mongoose = require('mongoose');
-var passport = require('passport');
-var router = express.Router();
-var jwt = require('jsonwebtoken');
+let User = require('../models/User');
+let express = require('express');
+let mongoose = require('mongoose');
+let passport = require('passport');
+let router = express.Router();
+let jwt = require('jsonwebtoken');
 require('../config/passport.js')(passport);
 
 router.post('/login', (req, res, next) => {
-    var email = req.body.email; //"test2@test.com"
-    var password = req.body.password; //"123"
+    let email = req.body.email; //"test2@test.com"
+    let password = req.body.password; //"123"
 
     console.log(req.body.email, req.body);
 
@@ -38,7 +38,7 @@ router.post('/login', (req, res, next) => {
 router.post('/register', (req, res, next) => {
 
     if(req.body.password === req.body.repassword) {
-        var newUser = new User();
+        let newUser = new User();
         newUser.email = req.body.email; //"test2@test.com"
         newUser.password = req.body.password; //"123"
         newUser.username = req.body.username;
@@ -61,7 +61,6 @@ router.get('/test', passport.authenticate('jwt', { session: false }), (req, res)
         email: req.user.email,
         username: req.user.username
     };
-    console.log(req.user);
     res.json(userInformation);
 });
 

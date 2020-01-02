@@ -1,9 +1,9 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+let mongoose = require('mongoose');
+let Schema = mongoose.Schema;
 
 //Not sure about required
 
-var mealSchema = new Schema({
+let mealSchema = new Schema({
     kcal: {type: Number, default: 0},
     protein: {type: Number, default: 0},
     carbs: {type: Number, default: 0},
@@ -13,11 +13,10 @@ var mealSchema = new Schema({
     contents: {type: Array},
 });
 
-var diaryEntrySchema = new Schema({
+let diaryEntrySchema = new Schema({
     date: {
         type: Date,
-        required: true,
-        index: true
+        required: true
     },
     meals: [mealSchema],
     nutritionSummary: {
@@ -34,6 +33,7 @@ var diaryEntrySchema = new Schema({
     author: {
         type: Schema.ObjectId,
         ref: 'User',
+        index: true,
         required: true
     }
 });

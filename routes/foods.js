@@ -1,13 +1,13 @@
-var Food = require('../models/Food');
-var express = require('express');
-var mongoose = require('mongoose');
-var router = express.Router();
-var passport = require('passport');
+let Food = require('../models/Food');
+let express = require('express');
+let mongoose = require('mongoose');
+let router = express.Router();
+let passport = require('passport');
 require('../config/passport.js')(passport);
 
 router.get('/', async (req, res, next) => {
-    var foodName = req.query.name;
-    var skipNumber = parseInt(req.query.skipNumber);
+    let foodName = req.query.name;
+    let skipNumber = parseInt(req.query.skipNumber);
 
     let pageCount = await getPages(foodName);
 
@@ -15,15 +15,13 @@ router.get('/', async (req, res, next) => {
         if (err) {
             res.send("An error has occured")
         } else {
-            console.log(skipNumber, pageCount);
-            console.log(skipNumber + 10 > pageCount);
             res.json({foodArray: foods, last: skipNumber + 10 > pageCount});
         }
     })
 });
 
 router.get('/delete', (req, res, next) => {
-    var foodName = req.body.name;
+    let foodName = req.body.name;
 
     Food.deleteOne({name: foodName}).exec(function (err, foods) {
         if (err) {
@@ -37,7 +35,7 @@ router.get('/delete', (req, res, next) => {
 
 
 router.post('/create', passport.authenticate('jwt', { session: false }), (req, res, next) => {
-    var newFood = new Food();
+    let newFood = new Food();
 
     newFood.name = req.body.name;
     newFood.nutritionVal = req.body.nutritionVal;
@@ -61,7 +59,7 @@ router.post('/create', passport.authenticate('jwt', { session: false }), (req, r
 });
 
 getPages = async (foodName) => {
-    pageCount = await Food.countDocuments({name: {$regex: foodName, $options: '<options>'}});
+    let pageCount = await Food.countDocuments({name: {$regex: foodName, $options: '<options>'}});
     return pageCount;
 };
 
