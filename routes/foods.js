@@ -3,6 +3,7 @@ let express = require('express');
 let mongoose = require('mongoose');
 let router = express.Router();
 let passport = require('passport');
+let createMeal = require('../public/javascripts/functions.js');
 require('../config/passport.js')(passport);
 
 router.get('/', async (req, res, next) => {
@@ -33,19 +34,27 @@ router.get('/delete', (req, res, next) => {
 
 });
 
-
-router.post('/create', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+//Creates Food object specified in FoodSchema in Food.js from data it receives in body of the request, processes both
+// requests with ingredients and meals.Ingredients receive nutrition values in the request and don't receive any further
+// ingredients, whereas nutrition values of meals are solely based on their ingredients.
+router.post('/create', passport.authenticate('jwt', {session: false}), (req, res, next) => {
     let newFood = new Food();
 
     newFood.name = req.body.name;
-    newFood.nutritionVal = req.body.nutritionVal;
     newFood.author = req.user._id;
-
-    if(req.body.desc){
+    if (req.body.desc) {
         newFood.desc = req.body.desc;
     }
-    if (req.body.ingredients){
+
+    if (req.body.nutritionVal) {
+        newFood.nutritionVal = req.body.nutritionVal;
+    } else {
         newFood.ingredients = req.body.ingredients;
+
+        //Creates nutritional values from ingredients
+        let nutritionalValEntries = createMeal(req.body.ingredients);
+        nutritionalValEntries.pop();
+        newFood.nutritionVal = Object.fromEntries(nutritionalValEntries);
     }
 
     res.json(newFood);
