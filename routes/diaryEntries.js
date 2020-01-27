@@ -9,21 +9,41 @@ require('../config/passport.js')(passport);
 //Finds a DiaryEntry document by its author and date or range of dates given by array of two dates - start and end
 router.get('/get', passport.authenticate('jwt', {session: false}), (req, res) => {
     let date;
+    let goal = {
+        "goalKcal": 2550,
+        "goalProtein": 300,
+        "goalCarbs": 300,
+        "goalFat": 300,
+        "goalFibre": 300,
+    };
+
     if (Array.isArray(JSON.parse(req.query.date))) {
         date = [];
+
         JSON.parse(req.query.date).forEach(dateString => {
             date.push(new Date(dateString));
         });
 
-        DiaryEntry.find({author: req.user._id, date: {$gte: date[0], $lte: date[1]}}).exec(function (err, diaryEntry) {
+        DiaryEntry.find({
+            author: req.user._id,
+            date: {$gte: date[0], $lte: date[1]}
+        }).exec(function (err, diaryEntries) {
             if (err) {
                 console.log("An error has occurred")
             } else {
-                if (diaryEntry.length === 0) {
+                if (diaryEntries.length === 0) {
                     res.status(404);
                     res.send("No documents with such dates and author in the database")
                 } else {
-                    res.send(diaryEntry);
+                    let rawDiaryEntries = diaryEntries;
+                    let processedDiaryEntries = [];
+                    rawDiaryEntries.forEach(diaryEntry => {
+                        let processedEntry = {...diaryEntry.nutritionSummary, ...goal, date: diaryEntry.date.getDate() + ". " + diaryEntry.date.getMonth()+1 + ". " + diaryEntry.date.getFullYear()};
+                        delete processedEntry.$init;
+                        processedDiaryEntries.push(processedEntry);
+                    });
+                    console.log(processedDiaryEntries);
+                    res.send(diaryEntries);
                 }
             }
         });
@@ -129,4 +149,4 @@ uniqueCheck = async (author, date) => {
     return numberOfEntries === 0;
 };
 
-module.exports =  router;
+module.exports = router;
