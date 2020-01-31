@@ -8,7 +8,9 @@ require('../config/passport.js')(passport);
 
 //Finds a DiaryEntry document by its author and date or range of dates given by array of two dates - start and end
 router.get('/get', passport.authenticate('jwt', {session: false}), (req, res) => {
+    //Initializes temporary variables
     let date;
+    let nutritionTemplate = {"kcal": 0, "protein": 0, "carbs": 0, "fat": 0, "fibre": 0};
     let goal = {
         "goalKcal": 2550,
         "goalProtein": 300,
@@ -24,6 +26,9 @@ router.get('/get', passport.authenticate('jwt', {session: false}), (req, res) =>
             date.push(new Date(dateString));
         });
 
+        //Stores number of days between the two received dates in request
+        let numberOfDays = Math.floor((date[1] - date[0]) / 86400000);
+
         DiaryEntry.find({
             author: req.user._id,
             date: {$gte: date[0], $lte: date[1]}
@@ -31,20 +36,65 @@ router.get('/get', passport.authenticate('jwt', {session: false}), (req, res) =>
             if (err) {
                 console.log("An error has occurred")
             } else {
-                if (diaryEntries.length === 0) {
-                    res.status(404);
-                    res.send("No documents with such dates and author in the database")
-                } else {
-                    let rawDiaryEntries = diaryEntries;
-                    let processedDiaryEntries = [];
-                    rawDiaryEntries.forEach(diaryEntry => {
-                        let processedEntry = {...diaryEntry.nutritionSummary, ...goal, date: diaryEntry.date.getDate() + ". " + diaryEntry.date.getMonth()+1 + ". " + diaryEntry.date.getFullYear()};
-                        delete processedEntry.$init;
-                        processedDiaryEntries.push(processedEntry);
-                    });
-                    console.log(processedDiaryEntries);
-                    res.send(diaryEntries);
+                let rawDiaryEntries = diaryEntries;
+                let allDates = [date[0]];
+                let processedDiaryEntries = [];
+
+                //Creates all the dates between the two dates which it receives in request
+                for (let i = 0; i < numberOfDays; i++) {
+                    let nextDay = new Date(allDates[i]);
+                    nextDay.setDate(nextDay.getDate() + 1);
+                    allDates.push(nextDay);
                 }
+
+                //Creates an empty diaryEntry and adds it to processedDiaryEntries array
+                allDates.forEach(entry => {
+                    let processedEntry = {
+                        ...nutritionTemplate,
+                        ...goal,
+                        date: entry.getDate() + ". " +
+                            (entry.getMonth() + 1) + ". " + entry.getFullYear()
+                    };
+                    processedDiaryEntries.push(processedEntry);
+                });
+
+                //Changes the properties of the empty processedDiaryEntries to the properties of according diaryEntries
+                // stored in database in the range given in request
+                let alreadySearched = 0;
+                rawDiaryEntries.forEach(diaryEntry => {
+                    let entryDate = diaryEntry.date.getDate() + ". " +
+                        (diaryEntry.date.getMonth() + 1) + ". " + diaryEntry.date.getFullYear();
+
+                    for (let i = alreadySearched; i < processedDiaryEntries.length; i++) {
+
+                        if (processedDiaryEntries[i].date === entryDate) {
+                            //Calculates the goal from the user's goal and nutritionSummary of the given day
+                            let goalCopy = goal;
+                            let summaryEntries = Object.entries(diaryEntry.nutritionSummary);
+                            let goalEntries = Object.entries(goalCopy);
+                            for(let j = 0; j<5; j++){
+                                goalEntries[j][1] = goalEntries[j][1] - summaryEntries[j+1][1];
+                            }
+
+                            //Stores all the data into the array
+                            processedDiaryEntries[i] = {
+                                ...processedDiaryEntries[i],
+                                ...diaryEntry.nutritionSummary,
+                                ...Object.fromEntries(goalEntries),
+                            };
+                            delete processedDiaryEntries[i].$init;
+
+                            //If there has been a match there's no need for further cycles
+                            lastIndex = i;
+                            break;
+                        }
+
+                    }
+                    //No need to examine the first processedEntry one again
+                    alreadySearched++;
+                });
+                console.log(processedDiaryEntries);
+                res.send(processedDiaryEntries);
             }
         });
     } else {
