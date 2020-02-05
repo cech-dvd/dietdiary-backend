@@ -13,10 +13,10 @@ router.get('/get', passport.authenticate('jwt', {session: false}), (req, res) =>
     let nutritionTemplate = {"kcal": 0, "protein": 0, "carbs": 0, "fat": 0, "fibre": 0};
     let goal = {
         "goalKcal": 2550,
-        "goalProtein": 300,
-        "goalCarbs": 300,
-        "goalFat": 300,
-        "goalFibre": 300,
+        "goalProtein": 100,
+        "goalCarbs": 100,
+        "goalFat": 100,
+        "goalFibre": 100,
     };
 
     if (Array.isArray(JSON.parse(req.query.date))) {
@@ -72,8 +72,8 @@ router.get('/get', passport.authenticate('jwt', {session: false}), (req, res) =>
                             let goalCopy = goal;
                             let summaryEntries = Object.entries(diaryEntry.nutritionSummary);
                             let goalEntries = Object.entries(goalCopy);
-                            for(let j = 0; j<5; j++){
-                                goalEntries[j][1] = goalEntries[j][1] - summaryEntries[j+1][1];
+                            for (let j = 0; j < 5; j++) {
+                                goalEntries[j][1] = goalEntries[j][1] - summaryEntries[j + 1][1];
                             }
 
                             //Stores all the data into the array
@@ -93,21 +93,53 @@ router.get('/get', passport.authenticate('jwt', {session: false}), (req, res) =>
                     //No need to examine the first processedEntry one again
                     alreadySearched++;
                 });
-                console.log(processedDiaryEntries);
                 res.send(processedDiaryEntries);
             }
         });
     } else {
         date = new Date(JSON.parse(req.query.date));
+        //Creates template data for DiaryEntry
+        let processedDiaryEntry = {
+            ...nutritionTemplate,
+            ...goal,
+            date: date.getDate() + ". " +
+                (date.getMonth() + 1) + ". " + date.getFullYear()
+        };
+
         DiaryEntry.find({author: req.user._id, date: date}).exec(function (err, diaryEntry) {
             if (err) {
                 console.log("An error has occurred")
             } else {
                 if (diaryEntry.length === 0) {
-                    res.status(404);
-                    res.send("No documents with such date and author in the database")
+                    //If there isn't a DiaryEntry in the database response is the template
+                    res.send(processedDiaryEntry);
                 } else {
-                    res.send(diaryEntry);
+                    //Calculates nutrition values left in order to reach the goal
+                    let goalEntries = Object.entries(goal);
+                    let summaryEntries = Object.entries(diaryEntry[0].nutritionSummary);
+                    for (let j = 0; j < 5; j++) {
+                        goalEntries[j][1] = goalEntries[j][1] - summaryEntries[j + 1][1];
+                    }
+
+                    //Updates the template with data from the database
+                    processedDiaryEntry = {
+                        ...processedDiaryEntry,
+                        ...diaryEntry[0].nutritionSummary,
+                        ...Object.fromEntries(goalEntries),
+                    };
+                    delete processedDiaryEntry.$init;
+
+                    //Creates object with both the data from the updated template and additional data from the database
+                    let enrichedEntry = {
+                        data: {...processedDiaryEntry},
+                        enrichedData: {
+                            meals: diaryEntry[0].meals,
+                            activities: {...diaryEntry[0].activities}
+                        },
+                    };
+                    delete enrichedEntry.enrichedData.activities.$init;
+
+                    res.send(enrichedEntry);
                 }
             }
         });
