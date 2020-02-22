@@ -136,6 +136,8 @@ router.get('/get', passport.authenticate('jwt', {session: false}), (req, res) =>
                             meals: diaryEntry[0].meals,
                             activities: {...diaryEntry[0].activities}
                         },
+                        authorUsername: diaryEntry[0].authorUsername,
+                        _id: diaryEntry[0]._id,
                     };
                     delete enrichedEntry.enrichedData.activities.$init;
 
@@ -159,6 +161,7 @@ router.post('/create', passport.authenticate('jwt', {session: false}), async (re
         //Saves date and author received in the body of the request into the new DiaryEntry
         newEntry.date = new Date(req.body.date);
         newEntry.author = req.user._id;
+        newEntry.authorUsername = req.user.username;
 
         //Checks if the request contents activities which are not compulsory and saves them if present
         if (req.body.activities.kcal !== "") {
@@ -205,6 +208,27 @@ router.post('/create', passport.authenticate('jwt', {session: false}), async (re
         res.send("Document with given date and author already exists")
     }
 });
+
+//
+router.delete('/delete', passport.authenticate('jwt', {session: false}), (req, res, next) => {
+    if(!req.body._id){
+        res.sendStatus(400)
+    } else {
+        let diaryEntryId = req.body._id;
+
+        // Food.deleteOne({_id: foodId}).exec(function (err, foods) {
+        //     if (err) {
+        //         res.send("An error has occured")
+        //     } else {
+        //         res.status(200)
+        //     }
+        // });
+
+        console.log(diaryEntryId);
+        res.sendStatus(200)
+    }
+});
+
 
 //Creates nutritionSummary object defined by diaryEntrySchema in DiaryEntry.js from meals and activites passed to the
 //function in arguments

@@ -10,21 +10,20 @@ router.post('/login', (req, res, next) => {
     let email = req.body.email; //"test2@test.com"
     let password = req.body.password; //"123"
 
-    console.log(req.body.email, req.body);
-
     User.findOne({email: email}).exec(function(err, foundUser){
         if(err){
             console.log(err);
             res.send(err);
-        } else {
+        } else if (foundUser){
             foundUser.comparePassword(password, function(err, isMatch) {
                 if(isMatch && isMatch == true){
                     jwt.sign({user: foundUser}, 'someKey', (err, token) =>{
                         res.json({
+                            email: foundUser.email,
+                            username: foundUser.username,
                             token: token
                         })
                     });
-                    console.log("Signed");
                 } else{
                     console.log("Invalid credentials");
                     res.sendStatus(401);

@@ -35,6 +35,10 @@ let diaryEntrySchema = new Schema({
         ref: 'User',
         index: true,
         required: true
+    },
+    authorUsername: {
+        type: String,
+        required: true
     }
 });
 

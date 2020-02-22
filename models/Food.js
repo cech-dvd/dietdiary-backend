@@ -6,26 +6,30 @@ let foodSchema = new Schema({
         type: String,
         required: true
     },
-    nutritionVal:{
+    nutritionVal: {
         kcal: Number,
         protein: Number,
         carbs: Number,
         fat: Number,
         fibre: Number,
     },
-    ingredients:{
+    ingredients: {
         type: Array,
         required: false,
         default: [],
     },
-    desc:{
-        type:String,
+    desc: {
+        type: String,
         required: false,
         default: "No description"
     },
-    author:{
+    author: {
         type: Schema.ObjectId,
         ref: 'User',
+        required: true
+    },
+    authorUsername: {
+        type: String,
         required: true
     }
 });

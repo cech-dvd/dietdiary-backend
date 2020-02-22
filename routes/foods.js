@@ -21,17 +21,22 @@ router.get('/', async (req, res, next) => {
     })
 });
 
-router.get('/delete', (req, res, next) => {
-    let foodName = req.body.name;
+router.delete('/delete', passport.authenticate('jwt', {session: false}), (req, res, next) => {
+    if(!req.body._id){
+        res.sendStatus(400)
+    } else {
+        let foodId = req.body._id;
 
-    Food.deleteOne({name: foodName}).exec(function (err, foods) {
-        if (err) {
-            res.send("An error has occured")
-        } else {
-            res.json(foods)
-        }
-    })
+        // Food.deleteOne({_id: foodId}).exec(function (err, foods) {
+        //     if (err) {
+        //         res.send("An error has occured")
+        //     } else {
+        //         res.status(200)
+        //     }
+        // });
 
+        res.sendStatus(200)
+    }
 });
 
 //Creates Food object specified in FoodSchema in Food.js from data it receives in body of the request, processes both
@@ -42,6 +47,7 @@ router.post('/create', passport.authenticate('jwt', {session: false}), (req, res
 
     newFood.name = req.body.name;
     newFood.author = req.user._id;
+    newFood.authorUsername = req.user.username;
     if (req.body.desc) {
         newFood.desc = req.body.desc;
     }
