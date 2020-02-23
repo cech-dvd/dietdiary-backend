@@ -1,8 +1,7 @@
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
 
-//Not sure about required
-
+//Specifies the properties meals ought to have
 let mealSchema = new Schema({
     kcal: {type: Number, default: 0},
     protein: {type: Number, default: 0},
@@ -13,6 +12,7 @@ let mealSchema = new Schema({
     contents: {type: Array},
 });
 
+//Specifies the properties every DiaryEntry document in the database should have
 let diaryEntrySchema = new Schema({
     date: {
         type: Date,

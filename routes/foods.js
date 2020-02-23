@@ -3,9 +3,12 @@ let express = require('express');
 let mongoose = require('mongoose');
 let router = express.Router();
 let passport = require('passport');
-let createMeal = require('../public/javascripts/functions.js');
+let createMeal = require('../accessories/functions.js');
 require('../config/passport.js')(passport);
 
+//Receives name of the food and number of pages which it is supposed to skip( one page consists of 10 documents), with
+//this data it then searches the database for documents and returns these documents as well as a boolean which states
+//whether the page returned was the last one
 router.get('/', async (req, res, next) => {
     let foodName = req.query.name;
     let skipNumber = parseInt(req.query.skipNumber);
@@ -21,17 +24,21 @@ router.get('/', async (req, res, next) => {
     })
 });
 
+//Receives in body food id and its author, then it searches the database for valid document and deletes it if there is one
 router.delete('/delete', passport.authenticate('jwt', {session: false}), (req, res, next) => {
     if(!req.body._id){
         res.sendStatus(400)
     } else {
-        let foodId = req.body._id;
-
-        // Food.deleteOne({_id: foodId}).exec(function (err, foods) {
+        // Food.deleteOne({_id: req.body._id, author: req.user._id}).exec(function (err, foods) {
         //     if (err) {
         //         res.send("An error has occured")
         //     } else {
-        //         res.status(200)
+        //         if(foods.deletedCount===1){
+        //             res.sendStatus(200);
+        //         } else {
+        //             res.sendStatus(400);
+        //         }
+        //         console.log(foods);
         //     }
         // });
 
@@ -66,13 +73,14 @@ router.post('/create', passport.authenticate('jwt', {session: false}), (req, res
     res.json(newFood);
     // newFood.save(function (err, food) {
     //     if (err) {
-    //         res.send(err);
+    //         res.sendStatus(500);
     //     } else {
     //         res.send(food)
     //     }
     // });
 });
 
+//Returns number of documents in database with given name
 getPages = async (foodName) => {
     let pageCount = await Food.countDocuments({name: {$regex: foodName, $options: '<options>'}});
     return pageCount;

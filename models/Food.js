@@ -1,6 +1,7 @@
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
 
+//Defines the properties Food documents in the database should have
 let foodSchema = new Schema({
     name: {
         type: String,

@@ -3,7 +3,7 @@ let express = require('express');
 let mongoose = require('mongoose');
 let router = express.Router();
 let passport = require('passport');
-let createMeal = require('../public/javascripts/functions.js');
+let createMeal = require('../accessories/functions.js');
 require('../config/passport.js')(passport);
 
 //Finds a DiaryEntry document by its author and date or range of dates given by array of two dates - start and end
@@ -34,7 +34,7 @@ router.get('/get', passport.authenticate('jwt', {session: false}), (req, res) =>
             date: {$gte: date[0], $lte: date[1]}
         }).exec(function (err, diaryEntries) {
             if (err) {
-                console.log("An error has occurred")
+                res.sendStatus(500);
             } else {
                 let rawDiaryEntries = diaryEntries;
                 let allDates = [date[0]];
@@ -192,20 +192,19 @@ router.post('/create', passport.authenticate('jwt', {session: false}), async (re
         //Creates nutritionSummary with the nutritional values located in the individual meals and activities received from client
         newEntry.nutritionSummary = createSummary(allMeals, newEntry.activities.kcal);
 
-        res.send(newEntry);
+        console.log(newEntry);
+        res.sendStatus(200);
 
         //Saves the object into the database
         // newEntry.save(function (err, entry) {
         //     if (err) {
-        //          res.send(err);
+        //          res.sendStatus(500);
         //     } else {
         //          res.send(entry);
         //      }
         // });
     } else {
-        res.status(403);
-        console.log(req.body.date);
-        res.send("Document with given date and author already exists")
+        res.sendStatus(403);
     }
 });
 
@@ -214,17 +213,17 @@ router.delete('/delete', passport.authenticate('jwt', {session: false}), (req, r
     if(!req.body._id){
         res.sendStatus(400)
     } else {
-        let diaryEntryId = req.body._id;
-
-        // Food.deleteOne({_id: foodId}).exec(function (err, foods) {
+        // DiaryEntry.deleteOne({_id: req.body._id, author: req.user._id}).exec(function (err, diaryEntries) {
         //     if (err) {
-        //         res.send("An error has occured")
+        //         res.sendStatus(500)
         //     } else {
-        //         res.status(200)
+        //         if(diaryEntries.deletedCount===1){
+        //             res.sendStatus(200);
+        //         } else {
+        //             res.sendStatus(400)
+        //         }
         //     }
         // });
-
-        console.log(diaryEntryId);
         res.sendStatus(200)
     }
 });

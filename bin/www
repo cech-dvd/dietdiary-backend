@@ -90,4 +90,5 @@ function onListening() {
   debug('Listening on ' + bind);
 }
 
+//Connects to atlas mongoDB databse
 connectToDB();

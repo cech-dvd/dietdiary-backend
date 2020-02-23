@@ -4,17 +4,12 @@ let path = require('path');
 let cookieParser = require('cookie-parser');
 let logger = require('morgan');
 let cors = require('cors');
-let indexRouter = require('./routes/index');
 let usersRouter = require('./routes/users');
 let foodRouter = require('./routes/foods');
 let diaryEntriesRouter = require('./routes/diaryEntries');
 
 
 let app = express();
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
 
 //whitelisting access from all urls
 app.use(cors());
@@ -25,7 +20,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
 app.use('/foods', foodRouter);
 app.use('/users', usersRouter);
 app.use('/diaryEntries', diaryEntriesRouter);

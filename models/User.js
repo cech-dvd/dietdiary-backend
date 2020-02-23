@@ -5,7 +5,7 @@ let Schema = mongoose.Schema;
 bcrypt = require('bcrypt'),
     SALT_WORK_FACTOR = 10;
 
-
+//Defines the properties every user item in the database should have
 let userSchema = new Schema({
     email: {
         type: String,
@@ -27,18 +27,18 @@ let userSchema = new Schema({
 userSchema.pre('save', function (next) {
     let user = this;
 
-    // only hash the password if it has been modified (or is new)
+    //Only hash the password if it has been modified (or is new)
     if (!user.isModified('password')) return next();
 
-    // generate a salt
+    //Generate a salt
     bcrypt.genSalt(SALT_WORK_FACTOR, function (err, salt) {
         if (err) return next(err);
 
-        // hash the password using our new salt
+        //Hash the password using our new salt
         bcrypt.hash(user.password, salt, function (err, hash) {
             if (err) return next(err);
 
-            // override the cleartext password with the hashed one
+            //Override the cleartext password with the hashed one
             user.password = hash;
             next();
         });
