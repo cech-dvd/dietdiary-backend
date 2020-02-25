@@ -22,7 +22,7 @@ let foodSchema = new Schema({
     desc: {
         type: String,
         required: false,
-        default: "No description"
+        default: "Bez popisu"
     },
     author: {
         type: Schema.ObjectId,
