@@ -19,7 +19,7 @@ router.get('/', async (req, res, next) => {
         if (err) {
             res.send("An error has occured")
         } else {
-            res.json({foodArray: foods, last: skipNumber + 10 > pageCount});
+            res.json({foodArray: foods, last: skipNumber + 10 >= pageCount});
         }
     })
 });
@@ -70,19 +70,20 @@ router.post('/create', passport.authenticate('jwt', {session: false}), (req, res
         newFood.nutritionVal = Object.fromEntries(nutritionalValEntries);
     }
 
-    res.json(newFood);
-    // newFood.save(function (err, food) {
-    //     if (err) {
-    //         res.sendStatus(500);
-    //     } else {
-    //         res.send(food)
-    //     }
-    // });
+    // res.json(newFood);
+    newFood.save(function (err, food) {
+        if (err) {
+            res.sendStatus(500);
+        } else {
+            res.send(food)
+        }
+    });
 });
 
 //Returns number of documents in database with given name
 getPages = async (foodName) => {
     let pageCount = await Food.countDocuments({name: {$regex: foodName, $options: '<options>'}});
+    console.log(pageCount);
     return pageCount;
 };
 
