@@ -11,8 +11,8 @@ require('../config/passport.js')(passport);
 //password with the hash in the database and if these match then it returns authentication token, email and username of
 //the user
 router.post('/login', (req, res, next) => {
-    let email = req.body.email; //"test2@test.com"
-    let password = req.body.password; //"123"
+    let email = req.body.email;
+    let password = req.body.password;
 
     User.findOne({email: email}).exec(function(err, foundUser){
         if(err){
@@ -67,7 +67,6 @@ router.post('/register', async (req, res, next) => {
 //Checks whether a user for given email and username doesn't already exist
 userUniqueCheck = async (email, username) => {
     let numberOfEntries = await User.countDocuments({email: email, username: username});
-    console.log();
     return numberOfEntries === 0;
 };
 

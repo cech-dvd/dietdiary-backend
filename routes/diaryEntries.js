@@ -192,17 +192,14 @@ router.post('/create', passport.authenticate('jwt', {session: false}), async (re
         //Creates nutritionSummary with the nutritional values located in the individual meals and activities received from client
         newEntry.nutritionSummary = createSummary(allMeals, newEntry.activities.kcal);
 
-        console.log(newEntry);
-        res.sendStatus(200);
-
         //Saves the object into the database
-        // newEntry.save(function (err, entry) {
-        //     if (err) {
-        //          res.sendStatus(500);
-        //     } else {
-        //          res.send(entry);
-        //      }
-        // });
+        newEntry.save(function (err, entry) {
+            if (err) {
+                 res.sendStatus(500);
+            } else {
+                 res.send(entry);
+             }
+        });
     } else {
         res.sendStatus(403);
     }
@@ -213,18 +210,17 @@ router.delete('/delete', passport.authenticate('jwt', {session: false}), (req, r
     if(!req.body._id){
         res.sendStatus(400)
     } else {
-        // DiaryEntry.deleteOne({_id: req.body._id, author: req.user._id}).exec(function (err, diaryEntries) {
-        //     if (err) {
-        //         res.sendStatus(500)
-        //     } else {
-        //         if(diaryEntries.deletedCount===1){
-        //             res.sendStatus(200);
-        //         } else {
-        //             res.sendStatus(400)
-        //         }
-        //     }
-        // });
-        res.sendStatus(200)
+        DiaryEntry.deleteOne({_id: req.body._id, author: req.user._id}).exec(function (err, diaryEntries) {
+            if (err) {
+                res.sendStatus(500)
+            } else {
+                if(diaryEntries.deletedCount===1){
+                    res.sendStatus(200);
+                } else {
+                    res.sendStatus(400)
+                }
+            }
+        });
     }
 });
 

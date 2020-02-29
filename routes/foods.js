@@ -29,20 +29,17 @@ router.delete('/delete', passport.authenticate('jwt', {session: false}), (req, r
     if(!req.body._id){
         res.sendStatus(400)
     } else {
-        // Food.deleteOne({_id: req.body._id, author: req.user._id}).exec(function (err, foods) {
-        //     if (err) {
-        //         res.send("An error has occured")
-        //     } else {
-        //         if(foods.deletedCount===1){
-        //             res.sendStatus(200);
-        //         } else {
-        //             res.sendStatus(400);
-        //         }
-        //         console.log(foods);
-        //     }
-        // });
-
-        res.sendStatus(200)
+        Food.deleteOne({_id: req.body._id, author: req.user._id}).exec(function (err, foods) {
+            if (err) {
+                res.send("An error has occured")
+            } else {
+                if(foods.deletedCount===1){
+                    res.sendStatus(200);
+                } else {
+                    res.sendStatus(400);
+                }
+            }
+        });
     }
 });
 
@@ -70,7 +67,6 @@ router.post('/create', passport.authenticate('jwt', {session: false}), (req, res
         newFood.nutritionVal = Object.fromEntries(nutritionalValEntries);
     }
 
-    // res.json(newFood);
     newFood.save(function (err, food) {
         if (err) {
             res.sendStatus(500);
@@ -83,7 +79,6 @@ router.post('/create', passport.authenticate('jwt', {session: false}), (req, res
 //Returns number of documents in database with given name
 getPages = async (foodName) => {
     let pageCount = await Food.countDocuments({name: {$regex: foodName, $options: '<options>'}});
-    console.log(pageCount);
     return pageCount;
 };
 
