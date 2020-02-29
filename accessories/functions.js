@@ -1,7 +1,7 @@
 let express = require('express');
 
 //Creates a meal from data it receives, argument foods is an array of food objects paired with grams
-createMeal = (foods) => {
+createMeal = (foods, additive) => {
     let mealSummary = {kcal: 0, protein: 0, fibre: 0, fat: 0, carbs: 0, contents: []};
 
     let totalGrams = 0;
@@ -27,11 +27,14 @@ createMeal = (foods) => {
     }
 
     //This calculates the nutritional values per 100 grams
-    totalGrams = Math.round(100 * (totalGrams/100)) / 100;
-    for (let k = 0; k < summaryEntries.length - 1; k++) {
-        summaryEntries[k][1] = Math.round((summaryEntries[k][1] / totalGrams));
+    if(!additive && totalGrams!==0){
+        totalGrams = Math.round(100 * (totalGrams/100)) / 100;
+        for (let k = 0; k < summaryEntries.length - 1; k++) {
+            summaryEntries[k][1] = Math.round((summaryEntries[k][1] / totalGrams));
 
+        }
     }
+
 
     return summaryEntries;
 };

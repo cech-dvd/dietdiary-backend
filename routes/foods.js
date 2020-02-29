@@ -62,7 +62,7 @@ router.post('/create', passport.authenticate('jwt', {session: false}), (req, res
         newFood.ingredients = req.body.ingredients;
 
         //Creates nutritional values from ingredients
-        let nutritionalValEntries = createMeal(req.body.ingredients);
+        let nutritionalValEntries = createMeal(req.body.ingredients, false);
         nutritionalValEntries.pop();
         newFood.nutritionVal = Object.fromEntries(nutritionalValEntries);
     }

@@ -181,7 +181,7 @@ router.post('/create', passport.authenticate('jwt', {session: false}), async (re
         //then saved into an array and further used
         for (let i = 0; i < mealNames.length; i++) {
             mealEntry[6][1] = mealNames[i];
-            summaryEntry = createMeal(Object.entries(req.body.meals)[i][1]);
+            summaryEntry = createMeal(Object.entries(req.body.meals)[i][1], true);
             for (let j = 0; j < summaryEntry.length; j++) {
                 mealEntry[j] = summaryEntry[j];
             }
@@ -192,6 +192,7 @@ router.post('/create', passport.authenticate('jwt', {session: false}), async (re
         //Creates nutritionSummary with the nutritional values located in the individual meals and activities received from client
         newEntry.nutritionSummary = createSummary(allMeals, newEntry.activities.kcal);
 
+        console.log(newEntry, allMeals);
         //Saves the object into the database
         newEntry.save(function (err, entry) {
             if (err) {
