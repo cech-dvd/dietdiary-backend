@@ -28,7 +28,7 @@ let diaryEntrySchema = new Schema({
     },
     activities: {
         kcal: {type: Number, required: false, default: 0},
-        description: {type: String, required: false, default: "No activities"}
+        description: {type: String, required: false, default: "Žádné aktivity"}
     },
     author: {
         type: Schema.ObjectId,

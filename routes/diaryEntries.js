@@ -108,7 +108,7 @@ router.get('/get', passport.authenticate('jwt', {session: false}), (req, res) =>
 
         DiaryEntry.find({author: req.user._id, date: date}).exec(function (err, diaryEntry) {
             if (err) {
-                console.log("An error has occurred")
+                res.sendStatus(500);
             } else {
                 if (diaryEntry.length === 0) {
                     //If there isn't a DiaryEntry in the database response is the template
@@ -192,7 +192,6 @@ router.post('/create', passport.authenticate('jwt', {session: false}), async (re
         //Creates nutritionSummary with the nutritional values located in the individual meals and activities received from client
         newEntry.nutritionSummary = createSummary(allMeals, newEntry.activities.kcal);
 
-        console.log(newEntry, allMeals);
         //Saves the object into the database
         newEntry.save(function (err, entry) {
             if (err) {

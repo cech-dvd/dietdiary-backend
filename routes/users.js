@@ -66,7 +66,8 @@ router.post('/register', async (req, res, next) => {
 
 //Checks whether a user for given email and username doesn't already exist
 userUniqueCheck = async (email, username) => {
-    let numberOfEntries = await User.countDocuments({email: email, username: username});
+    let numberOfEntries = await User.countDocuments({email: email});
+    numberOfEntries += await User.countDocuments({username: username});
     return numberOfEntries === 0;
 };
 

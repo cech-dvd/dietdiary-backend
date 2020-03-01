@@ -17,7 +17,7 @@ router.get('/', async (req, res, next) => {
 
     Food.find({name: {$regex: foodName, $options: '<options>'}}).skip(skipNumber).limit(10).exec(function (err, foods) {
         if (err) {
-            res.send("An error has occured")
+            res.sendStatus(500);
         } else {
             res.json({foodArray: foods, last: skipNumber + 10 >= pageCount});
         }
@@ -31,7 +31,7 @@ router.delete('/delete', passport.authenticate('jwt', {session: false}), (req, r
     } else {
         Food.deleteOne({_id: req.body._id, author: req.user._id}).exec(function (err, foods) {
             if (err) {
-                res.send("An error has occured")
+                res.sendStatus(500);
             } else {
                 if(foods.deletedCount===1){
                     res.sendStatus(200);
