@@ -14,20 +14,20 @@ router.post('/login', (req, res, next) => {
     let email = req.body.email;
     let password = req.body.password;
 
-    User.findOne({email: email}).exec(function(err, foundUser){
-        if(err){
+    User.findOne({email: email}).exec(function (err, foundUser) {
+        if (err) {
             res.sendStatus(500);
-        } else if (foundUser){
-            foundUser.comparePassword(password, function(err, isMatch) {
-                if(isMatch && isMatch == true){
-                    jwt.sign({user: foundUser}, 'someKey', (err, token) =>{
+        } else if (foundUser) {
+            foundUser.comparePassword(password, function (err, isMatch) {
+                if (isMatch && isMatch == true) {
+                    jwt.sign({user: foundUser}, 'someKey', (err, token) => {
                         res.json({
                             email: foundUser.email,
                             username: foundUser.username,
                             token: token
                         })
                     });
-                } else{
+                } else {
                     res.sendStatus(400);
                 }
             });
@@ -42,8 +42,8 @@ router.post('/login', (req, res, next) => {
 router.post('/register', async (req, res, next) => {
 
     let unique = await userUniqueCheck(req.body.email, req.body.username);
-    if(unique){
-        if(req.body.password === req.body.repassword) {
+    if (unique) {
+        if (req.body.password === req.body.repassword) {
             let newUser = new User();
             newUser.email = req.body.email; //"test2@test.com"
             newUser.password = req.body.password; //"123"
@@ -57,10 +57,63 @@ router.post('/register', async (req, res, next) => {
                 }
             });
         } else {
-                res.sendStatus(401);
+            res.sendStatus(401);
         }
     } else {
         res.sendStatus(400);
+    }
+});
+
+router.post('/intake', passport.authenticate('jwt', {session: false}), (req, res, next) => {
+    if (!req.body.age && !req.body.height && !req.body.weight && !req.body.sex && !req.body.activity) {
+        res.sendStatus(400)
+    } else {
+        let nutritionGoal = {kcal: 0, protein: 0, carbs: 0, fat: 0, fibre: 0};
+        let caloriesIntake;
+        let activites = ["Sedentary", "Lightly active", "Moderately active", "Very active", "Extra active"];
+        let activityCoefficientArray = [1.2, 1.375, 1.55, 1.725, 1.9];
+        let activityCoefficient;
+
+        for (let i = 0; i < activites.length; i++) {
+            if (activites[i] === req.body.activity) {
+                activityCoefficient = activityCoefficientArray[i];
+            }
+        }
+
+        if (req.body.sex === "male") {
+            caloriesIntake = (10 * req.body.weight + 6.25 * req.body.height - 5 * req.body.age + 5) * activityCoefficient;
+        } else {
+            caloriesIntake = (10 * req.body.weight + 6.25 * req.body.height - 5 * req.body.age + -161) * activityCoefficient;
+        }
+
+        nutritionGoal.kcal = Math.round(caloriesIntake*100)/100;
+        nutritionGoal.protein = Math.round(((0.25*caloriesIntake)/4)*100)/100;
+        nutritionGoal.carbs = Math.round(((0.5*caloriesIntake)/4)*100)/100;
+        nutritionGoal.fat = Math.round(((0.25*caloriesIntake)/9)*100)/100;
+
+        if(req.body.age<3){
+            nutritionGoal.fibre = 14;
+        } else if (req.body.age<8) {
+            nutritionGoal.fibre = 17.64;
+        } else if (req.body.age<13) {
+            nutritionGoal.fibre = 24.32;
+        } else if (req.body.age<18) {
+            nutritionGoal.fibre = 28.56;
+        } else {
+            if(req.body.sex === "male"){
+                nutritionGoal.fibre = 34.27;
+            } else {
+                nutritionGoal.fibre = 28.39;
+            }
+        }
+
+        User.updateOne({_id: req.user._id}, {intakeGoal: nutritionGoal}).exec(function (err) {
+            if (err) {
+                res.sendStatus(500);
+            } else {
+                res.sendStatus(200);
+            }
+        });
     }
 });
 

@@ -20,6 +20,15 @@ let userSchema = new Schema({
         type: String,
         required: true,
         unique: true,
+    },
+    intakeGoal: {
+        kcal: Number,
+        protein: Number,
+        carbs: Number,
+        fat: Number,
+        fibre: Number,
+        required: false,
+        default: {},
     }
 });
 

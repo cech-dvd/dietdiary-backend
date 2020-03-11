@@ -22,19 +22,16 @@ createMeal = (foods, additive) => {
         //Adds up all the nutritional values from each food from the parameter foods and saves them into summaryEntries
         for (let k = 0; k < summaryEntries.length - 1; k++) {
             summaryEntries[k][1] += Math.round(100 * (foodEntry[k][1] * (grams / 100))) / 100;
-
         }
     }
 
     //This calculates the nutritional values per 100 grams
-    if(!additive && totalGrams!==0){
-        totalGrams = Math.round(100 * (totalGrams/100)) / 100;
+    if (!additive && totalGrams !== 0) {
+        totalGrams = Math.round(100 * (totalGrams / 100)) / 100;
         for (let k = 0; k < summaryEntries.length - 1; k++) {
             summaryEntries[k][1] = Math.round((summaryEntries[k][1] / totalGrams));
-
         }
     }
-
 
     return summaryEntries;
 };
