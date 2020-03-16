@@ -40,7 +40,6 @@ router.post('/login', (req, res, next) => {
 //If there isn't already a user with email and username it receives in body, it starts saving a user with the data from
 //its body, but before it saves the user the password is hashed (for more information see User.js)
 router.post('/register', async (req, res, next) => {
-
     let unique = await userUniqueCheck(req.body.email, req.body.username);
     if (unique) {
         if (req.body.password === req.body.repassword) {
@@ -86,21 +85,21 @@ router.post('/intake', passport.authenticate('jwt', {session: false}), (req, res
             caloriesIntake = (10 * req.body.weight + 6.25 * req.body.height - 5 * req.body.age + -161) * activityCoefficient;
         }
 
-        nutritionGoal.kcal = Math.round(caloriesIntake*100)/100;
-        nutritionGoal.protein = Math.round(((0.25*caloriesIntake)/4)*100)/100;
-        nutritionGoal.carbs = Math.round(((0.5*caloriesIntake)/4)*100)/100;
-        nutritionGoal.fat = Math.round(((0.25*caloriesIntake)/9)*100)/100;
+        nutritionGoal.kcal = Math.round(caloriesIntake * 100) / 100;
+        nutritionGoal.protein = Math.round(((0.25 * caloriesIntake) / 4) * 100) / 100;
+        nutritionGoal.carbs = Math.round(((0.5 * caloriesIntake) / 4) * 100) / 100;
+        nutritionGoal.fat = Math.round(((0.25 * caloriesIntake) / 9) * 100) / 100;
 
-        if(req.body.age<3){
+        if (req.body.age < 3) {
             nutritionGoal.fibre = 14;
-        } else if (req.body.age<8) {
+        } else if (req.body.age < 8) {
             nutritionGoal.fibre = 17.64;
-        } else if (req.body.age<13) {
+        } else if (req.body.age < 13) {
             nutritionGoal.fibre = 24.32;
-        } else if (req.body.age<18) {
+        } else if (req.body.age < 18) {
             nutritionGoal.fibre = 28.56;
         } else {
-            if(req.body.sex === "male"){
+            if (req.body.sex === "male") {
                 nutritionGoal.fibre = 34.27;
             } else {
                 nutritionGoal.fibre = 28.39;
@@ -115,6 +114,20 @@ router.post('/intake', passport.authenticate('jwt', {session: false}), (req, res
             }
         });
     }
+});
+
+router.get('/userInformation', passport.authenticate('jwt', {session: false}), (req, res, next) => {
+    let goal = req.user.intakeGoal;
+    if(!req.user.intakeGoal.kcal){
+        goal = null;
+    }
+
+    let userInformation = {
+        email: req.user.email,
+        username: req.user.username,
+        userGoal: goal,
+    };
+    res.send(userInformation);
 });
 
 //Checks whether a user for given email and username doesn't already exist
