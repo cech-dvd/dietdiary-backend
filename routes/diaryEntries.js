@@ -12,12 +12,21 @@ router.get('/get', passport.authenticate('jwt', {session: false}), (req, res) =>
     let date;
     let nutritionTemplate = {"kcal": 0, "protein": 0, "carbs": 0, "fat": 0, "fibre": 0};
     let goal = {
-        "goalKcal": 2550,
-        "goalProtein": 100,
-        "goalCarbs": 100,
-        "goalFat": 100,
-        "goalFibre": 100,
+        "goalKcal": 0,
+        "goalProtein": 0,
+        "goalCarbs": 0,
+        "goalFat": 0,
+        "goalFibre": 0,
     };
+    if(req.user.intakeGoal.kcal){
+        goal = {
+            "goalKcal": req.user.intakeGoal.kcal,
+            "goalProtein": req.user.intakeGoal.protein,
+            "goalCarbs": req.user.intakeGoal.carbs,
+            "goalFat": req.user.intakeGoal.fat,
+            "goalFibre": req.user.intakeGoal.fibre,
+        }
+    }
 
     if (Array.isArray(JSON.parse(req.query.date))) {
         date = [];
