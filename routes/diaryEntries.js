@@ -18,6 +18,8 @@ router.get('/get', passport.authenticate('jwt', {session: false}), (req, res) =>
         "goalFat": 0,
         "goalFibre": 0,
     };
+
+    //Loads the user's nutritional goal if there is one
     if(req.user.intakeGoal.kcal){
         goal = {
             "goalKcal": req.user.intakeGoal.kcal,

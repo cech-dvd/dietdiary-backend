@@ -63,10 +63,14 @@ router.post('/register', async (req, res, next) => {
     }
 });
 
+//Calculates recommended intake of nutritional values according to the Mifflin-St Jeor equation. It requires sex, weight,
+//height, age and intensity of the user's daily activity in order to calculate the values. It then saves the recommended
+//intake into the document representing the user's account in the database.
 router.post('/intake', passport.authenticate('jwt', {session: false}), (req, res, next) => {
     if (!req.body.age && !req.body.height && !req.body.weight && !req.body.sex && !req.body.activity) {
         res.sendStatus(400)
     } else {
+        //Initializes variables with all the data from the request
         let nutritionGoal = {kcal: 0, protein: 0, carbs: 0, fat: 0, fibre: 0};
         let caloriesIntake;
         let activites = ["Sedentary", "Lightly active", "Moderately active", "Very active", "Extra active"];
@@ -79,17 +83,20 @@ router.post('/intake', passport.authenticate('jwt', {session: false}), (req, res
             }
         }
 
+        //Calculates recommended calories intake
         if (req.body.sex === "male") {
             caloriesIntake = (10 * req.body.weight + 6.25 * req.body.height - 5 * req.body.age + 5) * activityCoefficient;
         } else {
             caloriesIntake = (10 * req.body.weight + 6.25 * req.body.height - 5 * req.body.age + -161) * activityCoefficient;
         }
 
+        //Splits the calories into recommended ratios for macronutrients
         nutritionGoal.kcal = Math.round(caloriesIntake * 100) / 100;
         nutritionGoal.protein = Math.round(((0.25 * caloriesIntake) / 4) * 100) / 100;
         nutritionGoal.carbs = Math.round(((0.5 * caloriesIntake) / 4) * 100) / 100;
         nutritionGoal.fat = Math.round(((0.25 * caloriesIntake) / 9) * 100) / 100;
 
+        //Calculates fibre, however it may be inaccurate since fibre is very specific
         if (req.body.age < 3) {
             nutritionGoal.fibre = 14;
         } else if (req.body.age < 8) {
@@ -106,6 +113,7 @@ router.post('/intake', passport.authenticate('jwt', {session: false}), (req, res
             }
         }
 
+        //Saves the document into the database
         User.updateOne({_id: req.user._id}, {intakeGoal: nutritionGoal}).exec(function (err) {
             if (err) {
                 res.sendStatus(500);
@@ -116,9 +124,11 @@ router.post('/intake', passport.authenticate('jwt', {session: false}), (req, res
     }
 });
 
+//Receives authentication token in request with which it retrieves a user account from the database and then sends
+//information about the given user in response
 router.get('/userInformation', passport.authenticate('jwt', {session: false}), (req, res, next) => {
     let goal = req.user.intakeGoal;
-    if(!req.user.intakeGoal.kcal){
+    if (!req.user.intakeGoal.kcal) {
         goal = null;
     }
 
@@ -127,6 +137,7 @@ router.get('/userInformation', passport.authenticate('jwt', {session: false}), (
         username: req.user.username,
         userGoal: goal,
     };
+
     res.send(userInformation);
 });
 
