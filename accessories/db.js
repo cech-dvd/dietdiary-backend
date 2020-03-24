@@ -1,5 +1,6 @@
 let mongoose = require('mongoose');
-let uri = 'mongodb+srv://admin:admin@dietdiary-jqruf.mongodb.net/test?retryWrites=true&w=majority\n';
+let secret = require('../accessories/secret.js');
+let uri = secret.getDBUri();
 
 //Function which connect to the Atlas MongoDB database
 const connectToDB = async () => {
